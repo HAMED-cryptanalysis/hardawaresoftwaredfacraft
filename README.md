@@ -6,3 +6,4 @@
 
 2- The hardware folder is related to the hardware implementation of DFA on CRAFT.
 2-1 C code programming of CRAFT algorithm as the victim cicuit(1) on atmega32 - C code programming of fault injection as the frequency glitch cicuit(2) on atmega32
+2-3 python code for analyzing the hardware results (finding fault location)
