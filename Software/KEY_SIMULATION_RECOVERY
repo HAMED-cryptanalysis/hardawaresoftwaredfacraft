@@ -1,0 +1,327 @@
+import random
+
+##CRAFT Cipher 0xE, 0xA, 0x9, 0x8, 0xB, 0x6, 0x5, 0x4, 0x7, 0x1, 0x2, 0x3, 0x0]
+S = [ 0xc, 0xa, 0xd, 0x3, 0xe, 0xb, 0xf, 0x7, 0x8, 0x9, 0x1, 0x5, 0x0, 0x2, 0x4, 0x6 ]
+P = [0xF, 0xC, 0xD, 0xE, 0xA, 0x9, 0x8, 0xB, 0x6, 0x5, 0x4, 0x7, 0x1, 0x2, 0x3, 0x0 ]
+Q = [0xC, 0xA, 0xF, 0x5, 0xE, 0x8, 0x9, 0x2, 0xB, 0x3, 0x7, 0x4, 0x6, 0x0, 0x1, 0xD]
+RC3 = [0x1, 0x4, 0x2, 0x5, 0x6, 0x7, 0x3, 0x1, 0x4, 0x2, 0x5, 0x6, 0x7, 0x3, 0x1, 0x4, 0x2, 0x5, 0x6, 0x7, 0x3, 0x1, 0x4, 0x2, 0x5, 0x6, 0x7, 0x3, 0x1, 0x4, 0x2, 0x5 ]
+RC4 = [  0x1, 0x8, 0x4, 0x2, 0x9, 0xc, 0x6, 0xb, 0x5, 0xa, 0xd, 0xe, 0xf, 0x7, 0x3, 0x1, 0x8, 0x4, 0x2, 0x9, 0xc, 0x6, 0xb, 0x5, 0xa, 0xd, 0xe, 0xf, 0x7, 0x3, 0x1, 0x8]
+R = 31
+Rf = 31
+Stt = {}
+r = 0
+TC = {}
+GO = {}
+Sttf = {}
+i=0
+j=0
+TK = { }
+TKf = { }
+rf = 0
+texthexbox = ["0","1","2","3","4","5","6","7","8","9","a","b","c","d","e","f"]
+for i in range(100):
+        total = 0
+        PL = "0x"
+        a = 0
+        for i in range(16):
+                a = random.choice(texthexbox)
+                PL = PL+a
+        Plain = (int(PL,16))
+
+        T = "0x"
+        a = 0
+        for i in range(16):
+                a = random.choice(texthexbox)
+                T = T+a
+        Tweak  = (int(T,16))
+
+
+        K0 = "0x"
+        a = 0
+        for i in range(16):
+                a = random.choice(texthexbox)
+                K0 = K0+a
+        Key_0  = (int(K0,16))
+
+        K1 = "0x"
+        a = 0
+        for i in range(16):
+                a = random.choice(texthexbox)
+                K1 = K1+a
+        Key_1 = (int(K1,16))
+        # //////////////////////True Cipher///////////////////////////
+        def initialize():
+                    for i in range(16):
+                        Stt[i] = ((Plain >> (4 * (15 - i))) & 0xf)
+                    for i in range(16):
+                        TK[0, i] = ((Key_0 >> (4 * (15 - i))) & 0xf)
+                    for i in range(16):
+                        TK[1, i] = ((Key_1 >> (4 * (15 - i))) & 0xf)
+                    for i in range(16):
+                        TK[2, i] = TK[0, i]
+                    for i in range(16):
+                        TK[3, i] = TK[1, i]
+                    for i in range(16):
+                        TK[0, i] ^= ((Tweak >> (4 * (15 - i))) & 0xf)
+                    for i in range(16):
+                        TK[1, i] ^= ((Tweak >> (4 * (15 - i))) & 0xf)
+                    for i in range(16):
+                        TK[2, i] ^= ((Tweak >> (4 * (15 - Q[i]))) & 0xf)
+                    for i in range(16):
+                        TK[3, i] ^= ((Tweak >> (4 * (15 - Q[i]))) & 0xf)
+                    TK00 = "0x"
+                    TK01 = "0x"
+                    TK10 = "0x"
+                    TK11 = "0x"
+                    PT = "0x"
+                    for i in range(16):
+                        TK00 = TK00 + (str(hex(TK[0, i]))[2])
+                    for i in range(16):
+                        TK01 = TK01 + (str(hex(TK[1, i]))[2])
+                    for i in range(16):
+                        TK10 = TK10 + (str(hex(TK[2, i]))[2])
+                    for i in range(16):
+                        TK11 = TK11 + (str(hex(TK[3, i]))[2])
+                    for i in range(16):
+                        PT = PT + (str(hex(Stt[i]))[2])
+                    TTk3_0 = TK11[17]
+                    TTk3_3 = TK11[14]
+                    TTk3_7 = TK11[10]
+                    TTk3_10 = TK11[7]
+                    keyfile = [TTk3_0,TTk3_3,TTk3_7,TTk3_10]
+                    # print("TK00: ")
+                    # print(TK00)
+                    # print("TK01: ")
+                    # print(TK01)
+                    # print("TK10: ")
+                    # print(TK10)
+
+                    # print("R00 : ")
+                    # print(PT)
+                    return keyfile
+        def Round(r):
+
+                    # MixColumn
+                    for i in range(4):
+                        Stt[i] ^= (Stt[i + 8] ^ Stt[i + 12])
+                        Stt[i + 4] ^= Stt[i + 12]
+                    # AddConstant
+                    ind = r
+                    Stt[4] ^= RC4[ind]
+                    Stt[5] ^= RC3[ind]
+
+                    # AddTweakey
+                    for i in range(16):
+                       Stt[i] ^= TK[ind % 4, i]
+                    # Permutation
+                    Temp = {}
+                    for i in range(16):
+                        Temp[P[i]] = Stt[i]
+                    # SBox
+                    for i in range(16):
+                        Stt[i] = S[Temp[i]]
+
+        def HalfRound(r):
+                    # MixColumn
+                    for i in range(4):
+                        Stt[i] ^= (Stt[i + 8] ^ Stt[i + 12])
+                        Stt[i + 4] ^= Stt[i + 12]
+                    # AddConstant
+                    ind = r
+                    Stt[4] ^= RC4[ind]
+                    Stt[5] ^= RC3[ind]
+
+                    # AddTweakey
+                    for i in range(16):
+                        Stt[i] ^= TK[ind % 4, i]
+                    # print("Stt:",Stt)
+                    PT = "0x"
+                    TK3 = "0x"
+                    # Next State
+                    #print(Fore.LIGHTYELLOW_EX + "TRUE Cipher or round : ", R + 1)
+                    for i in range(16):
+                        PT = PT + (str(hex(Stt[i]))[2])
+                    #print(Fore.BLUE + PT)
+                    for i in range(16):
+                        TK3 = TK3 + (str(hex(TK[ind % 4, i]))[2])
+                    #print(Fore.LIGHTYELLOW_EX + "TK3_round 32 : ")
+                    #print(Fore.BLUE + TK3)
+                    return Stt
+                    # //////////////////////True Cipher//////////////////////////
+                    # //////////////////////FAULT////////////////////////////////
+        def initializef():
+                    for i in range(16):
+                        Sttf[i] = ((Plain >> (4 * (15 - i))) & 0xf)
+                    for i in range(16):
+                        TKf[0, i] = ((Key_0 >> (4 * (15 - i))) & 0xf)
+                    for i in range(16):
+                        TKf[1, i] = ((Key_1 >> (4 * (15 - i))) & 0xf)
+                    for i in range(16):
+                        TKf[2, i] = TKf[0, i]
+                    for i in range(16):
+                        TKf[3, i] = TKf[1, i]
+
+                    for i in range(16):
+                        TKf[0, i] ^= ((Tweak >> (4 * (15 - i))) & 0xf)
+                    for i in range(16):
+                        TKf[1, i] ^= ((Tweak >> (4 * (15 - i))) & 0xf)
+                    for i in range(16):
+                        TKf[2, i] ^= ((Tweak >> (4 * (15 - Q[i]))) & 0xf)
+                    for i in range(16):
+                        TKf[3, i] ^= ((Tweak >> (4 * (15 - Q[i]))) & 0xf)
+
+                    TKf00 = "0x"
+                    TKf01 = "0x"
+                    TKf10 = "0x"
+                    TKf11 = "0x"
+                    PTf = "0x"
+                    for i in range(16):
+                        TKf00 = TKf00 + (str(hex(TKf[0, i]))[2])
+                    for i in range(16):
+                        TKf01 = TKf01 + (str(hex(TKf[1, i]))[2])
+                    for i in range(16):
+                        TKf10 = TKf10 + (str(hex(TKf[2, i]))[2])
+                    for i in range(16):
+                        TKf11 = TKf11 + (str(hex(TKf[3, i]))[2])
+                    for i in range(16):
+                        PTf = PTf + (str(hex(Sttf[i]))[2])
+        def Roundf(rf):
+                    if (rf == 25):
+                        #    nibble = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+                        #    num = [0x1, 0x2, 0x4, 0x8]
+                        a = 0x1  # (num[random.randint(0, 3)])
+                        #    #print("fualt value:", a)
+                        n = 0  # (nibble[random.randint(0,15)])
+                        #    #print("nibble injection:", n)
+                        # print()
+                        Sttf[n] ^= a
+                    # MixColumn
+                    for i in range(4):
+                        Sttf[i] ^= (Sttf[i + 8] ^ Sttf[i + 12])
+                        Sttf[i + 4] ^= Sttf[i + 12]
+                    # AddConstant
+                    indf = rf
+                    Sttf[4] ^= RC4[indf]
+                    Sttf[5] ^= RC3[indf]
+                    # AddTweakey
+                    for i in range(16):
+                        Sttf[i] ^= TKf[indf % 4, i]
+                    Tempf = {}
+                    for i in range(16):
+                        Tempf[P[i]] = Sttf[i]
+                    # SBox
+                    for i in range(16):
+                        Sttf[i] = S[Tempf[i]]
+                    PT = "0x"
+                    # Next State
+                    # print("Round:",rf+1)
+                    # for  i in range (16):
+                    # PT=PT + (str(hex(Sttf[i]))[2])
+                    # print( PT
+
+        def HalfRoundf(rf):
+                    NUMTOTAL = 0
+                    # MixColumn
+                    for i in range(4):
+                        Sttf[i] ^= (Sttf[i + 8] ^ Sttf[i + 12])
+                        Sttf[i + 4] ^= Sttf[i + 12]
+                    # AddConstant
+                    indf = rf
+                    Sttf[4] ^= RC4[indf]
+                    Sttf[5] ^= RC3[indf]
+                    # AddTweakey
+                    for i in range(16):
+                        Sttf[i] ^= TKf[indf % 4, i]
+                    PTf = "0x"
+                    # Next State
+                    #print(Fore.LIGHTYELLOW_EX + "FAULTY Cipher or round : ", Rf + 1)
+                    for i in range(16):
+                        PTf = PTf + (str(hex(Sttf[i]))[2])
+                    #print(Fore.BLUE + PTf)
+                    ##############################################
+                    ##############################################
+                    #print()
+                    #print(Fore.MAGENTA + "key_recovery last round")
+                    TC = HalfRound(31)
+                    #print(Fore.LIGHTWHITE_EX + "TK3candida:")
+                    #print("nibble")
+                    #print("0-3-7-10")
+                    #print(Fore.GREEN + "4", "5", "8", "5")
+                    #print()
+                    ####################################################
+                    T3k0 = 0
+                    T3k3 = 0
+                    T3k7 = 0
+                    T3k10 = 0
+                    TK3candida = []
+                    TK3fulse = []
+                    for T3k0 in range(16):
+                        for T3k3 in range(16):
+                            for T3k7 in range(16):
+                                for T3k10 in range(16):
+                                    if S[TC[10] ^ T3k7] ^ S[Sttf[10] ^ T3k7] == S[TC[1] ^ T3k10 ^ TC[9] ^ T3k3 ^ TC[13] ^ T3k0] ^ S[
+                                        Sttf[1] ^ T3k10 ^ Sttf[9] ^ T3k3 ^ Sttf[13] ^ T3k0]:
+                                        TK3candida.append(T3k0)
+                                        TK3candida.append(T3k3)
+                                        TK3candida.append(T3k7)
+                                        TK3candida.append(T3k10)
+                                    else:
+                                        TK3fulse.append(T3k0)
+                                        TK3fulse.append(T3k3)
+                                        TK3fulse.append(T3k7)
+                                        TK3fulse.append(T3k10)
+                    right_group = 0
+                    TTK3 = initialize()
+
+
+                    TTK3_0 = ('0x'+(TTK3[0]))
+                    TTK3_0_0 = int(TTK3_0,16)
+                    TTK3_3 = ('0x' + (TTK3[1]))
+                    TTK3_3_3 = int(TTK3_3, 16)
+                    TTK3_7 = ('0x' + (TTK3[2]))
+                    TTK3_7_7 = int(TTK3_7, 16)
+                    TTK3_10 = ('0x' + (TTK3[3]))
+                    TTK3_10_10 = int(TTK3_10, 16)
+                    for i in range(int((len(TK3candida)) / 4)):
+                        i = i * 4
+                        #print(TK3candida[i], TK3candida[i + 1], TK3candida[i + 2], TK3candida[i + 3])
+                        if (TK3candida[i] == TTK3_0_0 and TK3candida[i + 1] == TTK3_3_3 and TK3candida[i + 2] == TTK3_7_7 and TK3candida[i + 3] == TTK3_10_10):
+                            right_group = right_group + 1
+
+
+                    if (right_group>=1):
+                        print("successful")
+                        print(':)')
+                        #print(Fore.RED+"TK3candida 0-3-7-10 :")
+                        #for i in range(int((len(TK3candida)) / 4)):
+                            #i = i * 4
+                           #print(TK3candida[i], TK3candida[i + 1], TK3candida[i + 2], TK3candida[i + 3])
+
+                        #print("TK3candida 0-3-7-10 :", TK3candida)
+                        #print(Fore.BLUE+"right_group :", right_group)
+
+
+
+
+
+                    # //////////////////////FAULT////////////////////////////////
+                    # 4 5 8 5  0x97e355d9864c5bb4
+        def main():
+
+                    r = 0
+                    rf = 0
+                    #print()
+                    #print("_CRAFT_")
+                    #print(Fore.LIGHTRED_EX + "MSB>>LSB")
+                    initialize()
+                    for r in range(R):
+                        Round(r)
+                    #HalfRound(R)
+                    initializef()
+                    for rf in range(Rf):
+                        Roundf(rf)
+                    HalfRoundf(Rf)
+
+        if __name__ == "__main__":
+            main()
+
